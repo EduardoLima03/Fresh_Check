@@ -1,15 +1,13 @@
-import 'dart:convert';
-
-import 'package:coleta_de_validade_lj04/api/busca_desc/busca_desc.dart';
 import 'package:coleta_de_validade_lj04/pages/about_page.dart';
-import 'package:coleta_de_validade_lj04/widgets/text_field_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
+import '../api/sheets/log_sheets_api.dart';
 import '../api/sheets/user_sheets_api.dart';
+import '../models/log_save_model.dart';
 import '../models/user_fields_model.dart';
 
 class FormPage extends StatefulWidget {
@@ -120,13 +118,24 @@ class _FormPageState extends State<FormPage> {
         break;
       }
     }
-    return desc.toString();
+
+    if (desc.toString() == "null") {
+      saveLog("Sem cadastro - P:${eanControl.text.toString()}", "getDesc()");
+    }
+
+    return desc.toString() == "null" ? "Sem cadastro" : desc.toString();
   }
 
   mostraDesc() async {
-    if (_scanBarcode.isNotEmpty) {
+    var text;
+    if (_scanBarcode != 'Unknown') {
       eanControl.text = _scanBarcode;
-      var text = await getDesc();
+      text = await getDesc();
+      setState(() {
+        descControl.text = text.toString();
+      });
+    } else {
+      text = await getDesc();
       setState(() {
         descControl.text = text.toString();
       });
@@ -183,7 +192,7 @@ class _FormPageState extends State<FormPage> {
                 Row(
                   children: [
                     Flexible(
-                      flex: 7,
+                      flex: 6,
                       child: TextFormField(
                         decoration: const InputDecoration(
                           labelText: "EAN",
@@ -194,27 +203,31 @@ class _FormPageState extends State<FormPage> {
                           return null;
                         },
                         keyboardType: TextInputType.number,
-                        onChanged: (newValue) {
-                          if (newValue.length > 6) {
-                            mostraDesc();
-                          }
-                        },
                       ),
                     ),
                     Flexible(
-                        flex: 1,
-                        child: IconButton(
-                          icon: const Icon(Icons.qr_code_scanner),
-                          onPressed: () => scanBarcodeNormal(),
-                        )),
+                      flex: 1,
+                      child: IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () => mostraDesc(),
+                      ),
+                    ),
+                    Flexible(
+                      flex: 1,
+                      child: IconButton(
+                        icon: const Icon(Icons.qr_code_scanner),
+                        onPressed: () => scanBarcodeNormal(),
+                      ),
+                    ),
                   ],
                 ),
                 TextFormField(
                   decoration: const InputDecoration(labelText: "Descrição"),
                   controller: descControl,
                   validator: (value) {
-                    if (value == null || value.isEmpty || value == "Erro")
+                    if (value == null || value.isEmpty || value == "Erro") {
                       return 'Campo obrigatorio';
+                    }
                     return null;
                   },
                 ),
@@ -223,8 +236,9 @@ class _FormPageState extends State<FormPage> {
                   decoration: const InputDecoration(
                       hintText: "Quantidade", labelText: "Quantidade"),
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return 'Campo obrigatorio';
+                    }
                     return null;
                   },
                   keyboardType: TextInputType.number,
@@ -241,8 +255,9 @@ class _FormPageState extends State<FormPage> {
                     _dateContrl.text = date1.toString();
                   },
                   validator: (value) {
-                    if (value == null || value.isEmpty)
+                    if (value == null || value.isEmpty) {
                       return 'Campo obrigatorio';
+                    }
                     return null;
                   },
                 ),
@@ -363,5 +378,16 @@ class _FormPageState extends State<FormPage> {
       _dateContrl.text = "";
       _qualyControl.text = '';
     });
+  }
+
+  void saveLog(String erro, String funcao) async {
+    final logSave = {
+      LogFields.carimbo:
+          DateFormat("dd/MM/yyyy HH:mm:ss").format(DateTime.now()),
+      LogFields.erro: erro,
+      LogFields.funcao: funcao,
+    };
+
+    await LogSheetsApi.insert([logSave]);
   }
 }
