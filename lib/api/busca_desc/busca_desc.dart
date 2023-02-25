@@ -1,28 +1,28 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../../widgets/utils/snackbar_custom.dart';
+import '../utils/save_log.dart';
+
 class BuscaDesc {
-  static Future<Map> getDesc(ean) async {
+  Future<Map> getDesc(ean, BuildContext context) async {
     var url = Uri.parse(
-      'https://apirest-validade-medeiros.herokuapp.com/product/${ean.text.toString()}',
-    );
-    var response = await http.get(url, headers: <String, String>{
-      'Content-type': 'application/json; charset=UTF-8',
-      'Accept': 'application/json'
-    });
+        'http://18.230.58.176/api/by-ean/${ean.text.toString()}');
+    var response = await http.get(url, headers: {"Content-Type": "application/json"});
 
-    var text = <dynamic, dynamic>{};
+    var _text = <dynamic, dynamic>{};
 
-    if (response.statusCode == 200) {
+    if(response.statusCode == 200){
       var mJson = jsonDecode(response.body);
-      text['descricao'] = mJson['descricao'];
-      text['cod'] = mJson['cod'];
-      return text;
-    } else {
+      _text['descricao'] = mJson['description'].toString();
+      _text['code'] = mJson['code'].toString();
+      return _text;
+    }else if(response.statusCode != 200) {
       var url = Uri.parse(
-        'https://cosmos.bluesoft.com.br/produtos/${ean.toString()}',
+        'https://cosmos.bluesoft.com.br/produtos/${ean.text.toString()}',
       );
-      var response = await http.get(url);
+      response = await http.get(url);
       // cria a lista com a respostas separada por "<"
       var list = response.body.split('<');
       //retorn com a descricao
@@ -34,8 +34,15 @@ class BuscaDesc {
           break;
         }
       }
-      text['descricao'] = desc.toString();
-      return text;
+      _text['descricao'] = desc.toString();
+      return _text;
+    }else{
+      SnackbarCustom().show(context, "Produto não localizado", Colors.red);
+      _text['code'] = "Tente de novo";
+      _text['descricao'] = "Tente de novo";
+      SaveLog().log("Produto não localizado - ${ean.text.toString()}", "Loja 04 - getDesc");
+      return _text;
+
     }
   }
 }

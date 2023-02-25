@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coleta_de_validade_lj04/api/busca_desc/busca_desc.dart';
 import 'package:coleta_de_validade_lj04/pages/about_page.dart';
 import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
@@ -107,30 +108,12 @@ class _FormPageState extends State<FormPage> {
     'CHECK STAND PDV 7',
   ];
 
-  Future<Map> getDesc() async {
-    var url = Uri.parse(
-        'http://18.230.58.176/api/by-ean/${eanControl.text.toString()}');
-    var response = await http.get(url, headers: {"Content-Type": "application/json"});
-
-    var _text = <dynamic, dynamic>{};
-
-    if(response.statusCode == 200){
-      var mJson = jsonDecode(response.body);
-      _text['descricao'] = mJson['description'].toString();
-      _text['code'] = mJson['code'].toString();
-      return _text;
-    }
-    _text['descricao'] = "erro";
-    _text['code'] = "erro";
-    return _text;
-  }
-
   mostraDesc() async {
     isSave = true;
     var text;
     if (_scanBarcode != 'Unknown') {
       eanControl.text = _scanBarcode;
-      text = await getDesc();
+      text = await BuscaDesc().getDesc(eanControl, context);
       print(text['code']);
       setState(() {
         descControl.text = text['descricao'].toString();
@@ -138,7 +121,7 @@ class _FormPageState extends State<FormPage> {
         isSave = false;
       });
     } else {
-      text = await getDesc();
+      text = await BuscaDesc().getDesc(eanControl, context);
       setState(() {
         descControl.text = text.toString();
         codControl.text = text['code'].toString();
@@ -214,7 +197,7 @@ class _FormPageState extends State<FormPage> {
                       flex: 1,
                       child: IconButton(
                         icon: const Icon(Icons.search),
-                        onPressed: () => mostraDesc(),
+                        onPressed: () async => await mostraDesc(),
                       ),
                     ),
                     Flexible(
@@ -230,7 +213,7 @@ class _FormPageState extends State<FormPage> {
                   decoration: const InputDecoration(labelText: "Descrição"),
                   controller: descControl,
                   validator: (value) {
-                    if (value == null || value.isEmpty || value == "Erro") {
+                    if (value == null || value.isEmpty || value == "Erro" || value == "null" || value == "Null") {
                       return 'Campo obrigatorio';
                     }
                     return null;
