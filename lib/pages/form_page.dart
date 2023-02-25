@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:coleta_de_validade_lj04/pages/about_page.dart';
+import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
@@ -9,6 +12,7 @@ import '../api/sheets/log_sheets_api.dart';
 import '../api/sheets/user_sheets_api.dart';
 import '../models/log_save_model.dart';
 import '../models/user_fields_model.dart';
+import '../widgets/text_field_custom.dart';
 
 class FormPage extends StatefulWidget {
   const FormPage({
@@ -103,41 +107,42 @@ class _FormPageState extends State<FormPage> {
     'CHECK STAND PDV 7',
   ];
 
-  Future<String> getDesc() async {
+  Future<Map> getDesc() async {
     var url = Uri.parse(
-        'https://cosmos.bluesoft.com.br/produtos/${eanControl.text.toString()}');
-    var response = await http.get(url);
-    // cria a lista com a respostas separada por "<"
-    var list = response.body.split('<');
-    //retorn com a descricao
-    var desc;
-    for (var t in list) {
-      if (t.contains('product_description')) {
-        var separacao = t.split('>');
-        desc = separacao[1];
-        break;
-      }
-    }
+        'http://18.230.58.176/api/by-ean/${eanControl.text.toString()}');
+    var response = await http.get(url, headers: {"Content-Type": "application/json"});
 
-    if (desc.toString() == "null") {
-      saveLog("Sem cadastro - P:${eanControl.text.toString()}", "getDesc()");
-    }
+    var _text = <dynamic, dynamic>{};
 
-    return desc.toString() == "null" ? "Sem cadastro" : desc.toString();
+    if(response.statusCode == 200){
+      var mJson = jsonDecode(response.body);
+      _text['descricao'] = mJson['description'].toString();
+      _text['code'] = mJson['code'].toString();
+      return _text;
+    }
+    _text['descricao'] = "erro";
+    _text['code'] = "erro";
+    return _text;
   }
 
   mostraDesc() async {
+    isSave = true;
     var text;
     if (_scanBarcode != 'Unknown') {
       eanControl.text = _scanBarcode;
       text = await getDesc();
+      print(text['code']);
       setState(() {
-        descControl.text = text.toString();
+        descControl.text = text['descricao'].toString();
+        codControl.text = text['code'].toString();
+        isSave = false;
       });
     } else {
       text = await getDesc();
       setState(() {
         descControl.text = text.toString();
+        codControl.text = text['code'].toString();
+        isSave = false;
       });
     }
   }
@@ -167,7 +172,7 @@ class _FormPageState extends State<FormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cadastro'),
+        title: const Text('Cadastro Loja 04'),
         actions: [
           IconButton(
               onPressed: () {
@@ -184,11 +189,11 @@ class _FormPageState extends State<FormPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                /*TextFieldCustom(
+                TextFieldCustom(
                   label: "Code",
                   controler: codControl,
                   inputType: TextInputType.number,
-                ),*/
+                ),
                 Row(
                   children: [
                     Flexible(
@@ -328,12 +333,7 @@ class _FormPageState extends State<FormPage> {
                             if (_formKey.currentState!.validate()) {
                               if (selectedAuditor.value.isEmpty ||
                                   selectedSetor.value.isEmpty) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(const SnackBar(
-                                  content: Text(
-                                      'Campo Auditor e Setor obrigatorio!'),
-                                  backgroundColor: Colors.red,
-                                ));
+                              SnackbarCustom().show(context, 'Campo Auditor e Setor obrigatorio!', Colors.red);
                               } else {
                                 final user = {
                                   UserFields.carimbo:
@@ -348,8 +348,15 @@ class _FormPageState extends State<FormPage> {
                                       .format(DateTime.parse(
                                           _dateContrl.text.toString())),
                                 };
-                                await UserSheetsApi.insert([user]);
-                                clearForm();
+                                var isSuccess = await UserSheetsApi.insert([user]);
+                                if(isSuccess){
+                                  SnackbarCustom().show(context, "Sucesso ao Salvar!", Colors.green);
+
+                                  clearForm();
+                                }else{
+                                  // ignore: use_build_context_synchronously
+                                  SnackbarCustom().show(context, "Erro ao Salvar!", Colors.red);
+                                }
                               }
                             }
                           },
@@ -389,5 +396,5 @@ class _FormPageState extends State<FormPage> {
     };
 
     await LogSheetsApi.insert([logSave]);
+    }
   }
-}
