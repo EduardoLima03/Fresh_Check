@@ -1,17 +1,13 @@
-import 'dart:convert';
-
 import 'package:coleta_de_validade_lj04/api/busca_desc/busca_desc.dart';
+import 'package:coleta_de_validade_lj04/api/controller/selected_dropdown_button.dart';
 import 'package:coleta_de_validade_lj04/pages/about_page.dart';
 import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-import '../api/sheets/log_sheets_api.dart';
 import '../api/sheets/user_sheets_api.dart';
-import '../models/log_save_model.dart';
 import '../models/user_fields_model.dart';
 import '../widgets/text_field_custom.dart';
 
@@ -32,8 +28,11 @@ class _FormPageState extends State<FormPage> {
   final _dateContrl = TextEditingController();
   final _qualyControl = TextEditingController();
 
+  SelectedDropdownButton _selectedDropdownButton = SelectedDropdownButton();
+
   /// barcode*/
   String _scanBarcode = 'Unknown';
+
   Future<void> scanBarcodeNormal() async {
     String barcodeScanRes;
     // Platform messages may fail, so we use a try/catch PlatformException.
@@ -54,59 +53,6 @@ class _FormPageState extends State<FormPage> {
     });
     await mostraDesc();
   }
-
-  /*
-    atributos para dropdown
-   */
-  final selectedAuditor = ValueNotifier('');
-  final auditor = [
-    'REPOSITOR',
-    'PROMOTOR',
-    'BRIGADA DE VALIDADE',
-    'CONTROLADORIA MEDEIROS'
-  ];
-  final selectedSetor = ValueNotifier('');
-  final setor = [
-    'CANTINHO DA OFERTAS',
-    'PONTO EXTRA ENTRADA',
-    'RACK DE CEREAIS',
-    'EXPOSITOR DE PÃES',
-    'RETAGUARDA PADARIA',
-    'EXPOSITOR PADARIA DIVERSOS',
-    'BALCÃO DE LATICÍNIOS',
-    'BALCÃO FLV',
-    'PONTO DE EXTRA DE CONGELADOS',
-    'ILHAS DE CONGELADOS',
-    'GELADEIRA COCA PADARIA',
-    'GELADEIRA COCA GRANDE',
-    'GELADEIRA COCA 01',
-    'GELADEIRA COCA 02',
-    'GELADEIRA REQ/MARG/IOG',
-    'COOLER',
-    'EXPOSITOR DE CHURRASCO',
-    'EXPOSITOR DE SALGADINHOS COOLER',
-    'CORREDOR DE BEBIDAS',
-    'CORREDOR BISCOITOS',
-    'CORREDOR MATINAIS',
-    'CORREDOR AUTOMOTIVO/RAÇÃO',
-    'CORREDOR DE LIMPEZA',
-    'CORREDOR PERFUMARIA',
-    'GÔNDULA DE CONSERVAS/CONDIMENTOS E MOLHOS',
-    'CORREDOR NATURAIS',
-    'CORREDOR DE MASSAS',
-    'CORREDOR DE BAZAR',
-    'CORREDOR DE ACHOCOLATADOS/LEITE UHT',
-    'GÔNDULAS BISCOITOS ESPECIAIS',
-    'PONTO EXTRA FRIOS',
-    'PONTO EXTRA FUNDO LOJA',
-    'CHECK STAND PDV 1',
-    'CHECK STAND PDV 2',
-    'CHECK STAND PDV 3',
-    'CHECK STAND PDV 4',
-    'CHECK STAND PDV 5',
-    'CHECK STAND PDV 6',
-    'CHECK STAND PDV 7',
-  ];
 
   mostraDesc() async {
     isSave = true;
@@ -213,7 +159,8 @@ class _FormPageState extends State<FormPage> {
                   decoration: const InputDecoration(labelText: "Descrição"),
                   controller: descControl,
                   validator: (value) {
-                    if (value == null || value.isEmpty || value == "Erro" || value == "null" || value == "Null") {
+                    if (value == null || value.isEmpty || value == "Erro" ||
+                        value == "null" || value == "Null") {
                       return 'Campo obrigatorio';
                     }
                     return null;
@@ -250,10 +197,13 @@ class _FormPageState extends State<FormPage> {
                   },
                 ),
                 ValueListenableBuilder(
-                  valueListenable: selectedAuditor,
+                  valueListenable: _selectedDropdownButton.selectedAuditor,
                   builder: (BuildContext context, String value, _) {
                     return SizedBox(
-                      width: MediaQuery.of(context).size.width,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
                       child: DropdownButtonFormField<String>(
                         hint: const Text('AUDITOR'),
                         decoration: const InputDecoration(
@@ -261,22 +211,27 @@ class _FormPageState extends State<FormPage> {
                         ),
                         value: (value.isEmpty) ? null : value,
                         onChanged: (escolha) =>
-                            selectedAuditor.value = escolha.toString(),
-                        items: auditor
-                            .map((e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e),
-                                ))
+                        _selectedDropdownButton.selectedAuditor.value = escolha
+                            .toString(),
+                        items: _selectedDropdownButton.auditor
+                            .map((e) =>
+                            DropdownMenuItem(
+                              value: e,
+                              child: Text(e),
+                            ))
                             .toList(),
                       ),
                     );
                   },
                 ),
                 ValueListenableBuilder(
-                  valueListenable: selectedSetor,
+                  valueListenable: _selectedDropdownButton.selectedSetor,
                   builder: (BuildContext context, String value, _) {
                     return SizedBox(
-                      width: MediaQuery.of(context).size.width,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
                       child: DropdownButtonFormField<String>(
                         hint: const Text(
                           'SELECIONE O SETOR AUDITADO',
@@ -290,15 +245,17 @@ class _FormPageState extends State<FormPage> {
                         ),
                         value: (value.isEmpty) ? null : value,
                         onChanged: (escolha) =>
-                            selectedSetor.value = escolha.toString(),
-                        items: setor
-                            .map((e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(
-                                    e,
-                                    style: const TextStyle(fontSize: 12.0),
-                                  ),
-                                ))
+                        _selectedDropdownButton.selectedSetor.value = escolha
+                            .toString(),
+                        items: _selectedDropdownButton.setor
+                            .map((e) =>
+                            DropdownMenuItem(
+                              value: e,
+                              child: Text(
+                                e,
+                                style: const TextStyle(fontSize: 12.0),
+                              ),
+                            ))
                             .toList(),
                       ),
                     );
@@ -308,41 +265,53 @@ class _FormPageState extends State<FormPage> {
                   height: 10.0,
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
                   child: ElevatedButton(
                     onPressed: isSave
                         ? null
                         : () async {
-                            if (_formKey.currentState!.validate()) {
-                              if (selectedAuditor.value.isEmpty ||
-                                  selectedSetor.value.isEmpty) {
-                              SnackbarCustom().show(context, 'Campo Auditor e Setor obrigatorio!', Colors.red);
-                              } else {
-                                final user = {
-                                  UserFields.carimbo:
-                                      DateFormat("dd/MM/yyyy HH:mm:ss")
-                                          .format(DateTime.now()),
-                                  UserFields.auditor: selectedAuditor.value,
-                                  UserFields.setor: selectedSetor.value,
-                                  UserFields.descricao: descControl.text,
-                                  UserFields.ean: eanControl.text,
-                                  UserFields.quantidade: _qualyControl.text,
-                                  UserFields.validade: DateFormat("dd/MM/yyy")
-                                      .format(DateTime.parse(
-                                          _dateContrl.text.toString())),
-                                };
-                                var isSuccess = await UserSheetsApi.insert([user]);
-                                if(isSuccess){
-                                  SnackbarCustom().show(context, "Sucesso ao Salvar!", Colors.green);
+                      if (_formKey.currentState!.validate()) {
+                        if (_selectedDropdownButton.selectedAuditor.value
+                            .isEmpty ||
+                            _selectedDropdownButton.selectedSetor.value
+                                .isEmpty) {
+                          SnackbarCustom().show(
+                              context, 'Campo Auditor e Setor obrigatorio!',
+                              Colors.red);
+                        } else {
+                          final user = {
+                            UserFields.carimbo:
+                            DateFormat("dd/MM/yyyy HH:mm:ss")
+                                .format(DateTime.now()),
+                            UserFields.auditor: _selectedDropdownButton
+                                .selectedAuditor.value,
+                            UserFields.setor: _selectedDropdownButton
+                                .selectedSetor.value,
+                            UserFields.descricao: descControl.text,
+                            UserFields.ean: eanControl.text,
+                            UserFields.quantidade: _qualyControl.text,
+                            UserFields.validade: DateFormat("dd/MM/yyy")
+                                .format(DateTime.parse(
+                                _dateContrl.text.toString())),
+                          };
+                          var isSuccess = await UserSheetsApi.insert([user]);
+                          if (isSuccess) {
+                            // ignore: use_build_context_synchronously
+                            SnackbarCustom().show(
+                                context, "Sucesso ao Salvar!", Colors.green);
 
-                                  clearForm();
-                                }else{
-                                  // ignore: use_build_context_synchronously
-                                  SnackbarCustom().show(context, "Erro ao Salvar!", Colors.red);
-                                }
-                              }
-                            }
-                          },
+                            clearForm();
+                          } else {
+                            // ignore: use_build_context_synchronously
+                            SnackbarCustom().show(
+                                context, "Erro ao Salvar!", Colors.red);
+                          }
+                        }
+                      }
+                    },
                     child: Visibility(
                       visible: isSave,
                       replacement: const Text("Enviar"),
@@ -370,14 +339,4 @@ class _FormPageState extends State<FormPage> {
     });
   }
 
-  void saveLog(String erro, String funcao) async {
-    final logSave = {
-      LogFields.carimbo:
-          DateFormat("dd/MM/yyyy HH:mm:ss").format(DateTime.now()),
-      LogFields.erro: erro,
-      LogFields.funcao: funcao,
-    };
-
-    await LogSheetsApi.insert([logSave]);
-    }
-  }
+}
