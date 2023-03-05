@@ -7,18 +7,17 @@ class SplashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.lightGreen,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/icons/icon.png'),
+              Image.asset('assets/icons/loja4.png'),
               const SizedBox(
                 height: 20.0,
               ),
               const Text(
-                'Coleta de Validade',
-                style: TextStyle(color: Colors.white, fontSize: 24.0),
+                'Coletor de Validade',
+                style: TextStyle(color: Colors.green, fontSize: 24.0),
               ),
             ],
           ),

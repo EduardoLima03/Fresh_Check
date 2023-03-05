@@ -1,5 +1,4 @@
 import 'package:coleta_de_validade_lj04/api/busca_desc/busca_desc.dart';
-import 'package:coleta_de_validade_lj04/api/controller/selected_dropdown_button.dart';
 import 'package:coleta_de_validade_lj04/pages/about_page.dart';
 import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:intl/intl.dart';
 
 import '../api/sheets/user_sheets_api.dart';
+import '../controller/selected_dropdown_button.dart';
 import '../models/user_fields_model.dart';
 import '../widgets/text_field_custom.dart';
 
