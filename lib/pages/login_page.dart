@@ -1,3 +1,5 @@
+import 'package:coleta_de_validade_lj04/services/login_service.dart';
+import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -8,6 +10,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  LoginService loginService = LoginService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,19 +32,26 @@ class _LoginPageState extends State<LoginPage> {
                       height: 50.0,
                     ),
                     TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: "Email",
-                        border: OutlineInputBorder(),
-                        hintText: 'Enter valid mail id as abc@gmail.com',
+                      decoration: InputDecoration(
+                        hintText: "Email",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        fillColor:
+                            Theme.of(context).primaryColor.withOpacity(0.1),
+                        filled: true,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       controller: _emailTextControl,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if(value!.isEmpty){
+                        if (value!.isEmpty) {
                           return "campo obrigatorio";
-                        }else if(value!.contains('.api') && value!.contains('@')){
+                        } else if (value!.contains('.') &&
+                            value!.contains('@')) {
                           return null;
-                        }else{
+                        } else {
                           return "Deve ter @ e .api para ser considerado um email";
                         }
                       },
@@ -49,9 +60,16 @@ class _LoginPageState extends State<LoginPage> {
                       height: 10.0,
                     ),
                     TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: "Senha",
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.password_outlined),
+                        hintText: "Senha",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide.none,
+                        ),
+                        fillColor:
+                            Theme.of(context).primaryColor.withOpacity(0.1),
+                        filled: true,
                       ),
                       controller: _passwordTextControl,
                       obscureText: true,
@@ -72,7 +90,16 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: isSave
                             ? null
                             : () async {
-                                if (_formKey.currentState!.validate()) {}
+                                if (_formKey.currentState!.validate()) {
+                                 String? teste =  await loginService.getLogin(_emailTextControl, _passwordTextControl);
+                                  if(teste!.isNotEmpty){
+                                    print(" PRINT: $teste");
+                                    SnackbarCustom().show(context, "logado", Colors.green);
+                                  }else{
+                                    // ignore: use_build_context_synchronously
+                                    SnackbarCustom().show(context, "nao login", Colors.red);
+                                  }
+                                }
                               },
                         // ignore: sort_child_properties_last
                         child: Visibility(
@@ -117,4 +144,5 @@ class _LoginPageState extends State<LoginPage> {
     if (value!.isEmpty) return 'Campo obrigatorio';
     return null;
   }
+
 }
