@@ -10,16 +10,16 @@ class LoginService {
 
 
   Future<String?> getLogin(var email, var password) async {
-    var url = Uri.parse('http://18.230.58.176/api/login');
+    var url = Uri.parse('http://192.168.18.6/medeiros/public/api/login');
     var response = await http.post(url,
         headers: {"Accept": "application/json"},
         body: {"email": email.toString(), "password": password.toString()});
     if(response.statusCode == 200){
-      return jsonDecode(response.body).toString();
-      //_saveToken(token.value);
-      //return token.value.toString();
+      token.value = jsonDecode(response.body).toString();
+      _saveToken(token.value);
+      return token.value.toString();
     }else{
-      return jsonDecode(response.body).toString();
+      return "erro";
     }
   }
   Future<void> _startPreferences() async{

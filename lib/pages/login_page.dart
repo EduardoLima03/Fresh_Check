@@ -91,13 +91,18 @@ class _LoginPageState extends State<LoginPage> {
                             ? null
                             : () async {
                                 if (_formKey.currentState!.validate()) {
-                                 String? teste =  await loginService.getLogin(_emailTextControl, _passwordTextControl);
-                                  if(teste!.isNotEmpty){
+                                  String? teste = await loginService.getLogin(
+                                      _emailTextControl.text.toString(),
+                                      _passwordTextControl.text.toString());
+                                  if (teste! != 'erro') {
                                     print(" PRINT: $teste");
-                                    SnackbarCustom().show(context, "logado", Colors.green);
-                                  }else{
+                                    SnackbarCustom()
+                                        .show(context, "logado", Colors.green);
+                                  } else {
+                                    print(" PRINT: $teste");
                                     // ignore: use_build_context_synchronously
-                                    SnackbarCustom().show(context, "nao login", Colors.red);
+                                    SnackbarCustom()
+                                        .show(context, "nao login", Colors.red);
                                   }
                                 }
                               },
@@ -144,5 +149,4 @@ class _LoginPageState extends State<LoginPage> {
     if (value!.isEmpty) return 'Campo obrigatorio';
     return null;
   }
-
 }
