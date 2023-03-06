@@ -2,6 +2,7 @@ import 'package:coleta_de_validade_lj04/pages/form_page.dart';
 import 'package:coleta_de_validade_lj04/services/login_service.dart';
 import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,13 +16,12 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    if(loginService.token.value.isNotEmpty){
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-              const FormPage()));
-    }
+
+   verificarToken().then((value){
+     if(value){
+       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FormPage()));
+     }
+   });
     super.initState();
   }
 
@@ -163,5 +163,14 @@ class _LoginPageState extends State<LoginPage> {
   String? textFieldValidate(var value) {
     if (value!.isEmpty) return 'Campo obrigatorio';
     return null;
+  }
+
+  Future<bool> verificarToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    if(preferences.getString('token') != null){
+      return true;
+    }else{
+      return false;
+    }
   }
 }

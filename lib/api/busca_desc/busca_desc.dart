@@ -6,10 +6,10 @@ import '../../widgets/utils/snackbar_custom.dart';
 import '../utils/save_log.dart';
 
 class BuscaDesc {
-  Future<Map> getDesc(ean, BuildContext context) async {
+  Future<Map> getDesc(ean, BuildContext context, String token) async {
     var url = Uri.parse(
-        'http://18.230.58.176/api/by-ean/${ean.text.toString()}');
-    var response = await http.get(url, headers: {"Content-Type": "application/json"});
+        'http://192.168.18.6/medeiros/public/api/by-ean/${ean.text.toString()}');
+    var response = await http.get(url, headers: {"Accept": "application/json", "Authorization": "Bearer $token"});
 
     var _text = <dynamic, dynamic>{};
 

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/sheets/user_sheets_api.dart';
 import '../controller/selected_dropdown_button.dart';
@@ -30,10 +31,13 @@ class _FormPageState extends State<FormPage> {
   final _qualyControl = TextEditingController();
 
   SelectedDropdownButton _selectedDropdownButton = SelectedDropdownButton();
-  LoginService _service = LoginService();
+  final LoginService _service = LoginService();
 
   /// barcode*/
   String _scanBarcode = 'Unknown';
+
+  //TOKEN
+  var _token;
 
   Future<void> scanBarcodeNormal() async {
     String barcodeScanRes;
@@ -61,7 +65,7 @@ class _FormPageState extends State<FormPage> {
     var text;
     if (_scanBarcode != 'Unknown') {
       eanControl.text = _scanBarcode;
-      text = await BuscaDesc().getDesc(eanControl, context);
+      text = await BuscaDesc().getDesc(eanControl, context, _token);
       print(text['code']);
       setState(() {
         descControl.text = text['descricao'].toString();
@@ -69,7 +73,7 @@ class _FormPageState extends State<FormPage> {
         isSave = false;
       });
     } else {
-      text = await BuscaDesc().getDesc(eanControl, context);
+      text = await BuscaDesc().getDesc(eanControl, context, _token);
       setState(() {
         descControl.text = text.toString();
         codControl.text = text['code'].toString();
@@ -85,6 +89,10 @@ class _FormPageState extends State<FormPage> {
 
   @override
   initState() {
+    getToken().then((value){
+      _token = value.toString();
+    });
+    _service.readToken();
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
@@ -280,7 +288,7 @@ class _FormPageState extends State<FormPage> {
                                       DateFormat("dd/MM/yyyy HH:mm:ss")
                                           .format(DateTime.now()),
                                   UserFields.auditor:
-                                      "${_service.name} - ${_service.function}",
+                                      "${_service.name.value} - ${_service.function.value}",
                                   UserFields.setor: _selectedDropdownButton
                                       .selectedSetor.value,
                                   UserFields.descricao: descControl.text,
@@ -331,5 +339,10 @@ class _FormPageState extends State<FormPage> {
       _dateContrl.text = "";
       _qualyControl.text = '';
     });
+  }
+
+  Future<String> getToken()async{
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString('token').toString();
   }
 }
