@@ -1,3 +1,4 @@
+import 'package:coleta_de_validade_lj04/pages/form_page.dart';
 import 'package:coleta_de_validade_lj04/services/login_service.dart';
 import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,18 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   LoginService loginService = LoginService();
+
+  @override
+  void initState() {
+    if(loginService.token.value.isNotEmpty){
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+              const FormPage()));
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,14 +108,16 @@ class _LoginPageState extends State<LoginPage> {
                                       _emailTextControl.text.toString(),
                                       _passwordTextControl.text.toString());
                                   if (teste! != 'erro') {
-                                    print(" PRINT: $teste");
-                                    SnackbarCustom()
-                                        .show(context, "logado", Colors.green);
-                                  } else {
-                                    print(" PRINT: $teste");
                                     // ignore: use_build_context_synchronously
-                                    SnackbarCustom()
-                                        .show(context, "nao login", Colors.red);
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const FormPage()));
+                                  } else {
+                                    // ignore: use_build_context_synchronously
+                                    SnackbarCustom().show(context,
+                                        "Usuario invalido", Colors.red);
                                   }
                                 }
                               },

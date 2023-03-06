@@ -1,3 +1,4 @@
+import 'package:coleta_de_validade_lj04/models/token_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,7 +7,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginService {
   var token = ValueNotifier('');
+  var name = ValueNotifier('');
+  var function = ValueNotifier('');
+
   late SharedPreferences _prefs;
+
+  /*LoginService(){
+    _startPreferences();
+    _readToken();
+  }*/
 
 
   Future<String?> getLogin(var email, var password) async {
@@ -15,7 +24,12 @@ class LoginService {
         headers: {"Accept": "application/json"},
         body: {"email": email.toString(), "password": password.toString()});
     if(response.statusCode == 200){
-      token.value = jsonDecode(response.body).toString();
+      var _tUser = jsonDecode(response.body);
+      TokenModel tokenModel = TokenModel.fromJson(_tUser);
+
+      token.value = tokenModel.token!.toString();
+      name.value = tokenModel.user!.nome.toString();
+      function.value = tokenModel.user!.function.toString();
       _saveToken(token.value);
       return token.value.toString();
     }else{
@@ -26,7 +40,7 @@ class LoginService {
     _prefs = await SharedPreferences.getInstance();
   }
 
-
+//TODO nao esta salvando, [ERROR:flutter/runtime/dart_vm_initializer.cc(41)] Unhandled Exception: LateInitializationError: Field '_prefs@42249577' has not been initialized.
   _saveToken(String value) async{
     _startPreferences();
     await _prefs.setString('token', value);
@@ -36,5 +50,9 @@ class LoginService {
     _startPreferences();
     token.value = _prefs.getString('token').toString();
   }
+
+  /*Future<bool> isToken(){
+
+  }*/
 
 }

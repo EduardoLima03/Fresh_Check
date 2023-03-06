@@ -11,7 +11,7 @@ class SplashPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/icons/loja4.png'),
+              Image.asset('assets/icons/icon.png'),
               const SizedBox(
                 height: 20.0,
               ),
