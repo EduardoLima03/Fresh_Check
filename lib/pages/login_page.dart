@@ -16,12 +16,12 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-
-   verificarToken().then((value){
-     if(value){
-       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FormPage()));
-     }
-   });
+    verificarToken().then((value) {
+      if (value) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => FormPage()));
+      }
+    });
     super.initState();
   }
 
@@ -36,6 +36,8 @@ class _LoginPageState extends State<LoginPage> {
               child: Form(
                 key: _formKey,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
                       "Login",
@@ -104,20 +106,24 @@ class _LoginPageState extends State<LoginPage> {
                             ? null
                             : () async {
                                 if (_formKey.currentState!.validate()) {
-                                  String? teste = await loginService.getLogin(
-                                      _emailTextControl.text.toString(),
-                                      _passwordTextControl.text.toString());
-                                  if (teste! != 'erro') {
-                                    // ignore: use_build_context_synchronously
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const FormPage()));
-                                  } else {
-                                    // ignore: use_build_context_synchronously
-                                    SnackbarCustom().show(context,
-                                        "Usuario invalido", Colors.red);
+                                  try {
+                                    String? teste = await loginService.getLogin(
+                                        _emailTextControl.text.toString(),
+                                        _passwordTextControl.text.toString());
+                                    if (teste! != 'erro') {
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const FormPage()));
+                                    } else {
+                                      // ignore: use_build_context_synchronously
+                                      SnackbarCustom().show(context,
+                                          "Usuario invalido", Colors.red);
+                                    }
+                                  } catch (e) {
+                                    SnackbarCustom().show(context, "ERRO: ${e.runtimeType}", Colors.red);
                                   }
                                 }
                               },
@@ -160,6 +166,13 @@ class _LoginPageState extends State<LoginPage> {
   final _emailTextControl = TextEditingController();
   final _passwordTextControl = TextEditingController();
 
+  @override
+  void dispose() {
+    _passwordTextControl.dispose();
+    _emailTextControl.dispose();
+    super.dispose();
+  }
+
   String? textFieldValidate(var value) {
     if (value!.isEmpty) return 'Campo obrigatorio';
     return null;
@@ -167,9 +180,9 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<bool> verificarToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    if(preferences.getString('token') != null){
+    if (preferences.getString('token') != null) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }

@@ -7,9 +7,15 @@ import '../utils/save_log.dart';
 
 class BuscaDesc {
   Future<Map> getDesc(ean, BuildContext context, String token) async {
+    var response;
     var url = Uri.parse(
         'http://192.168.18.6/medeiros/public/api/by-ean/${ean.text.toString()}');
-    var response = await http.get(url, headers: {"Accept": "application/json", "Authorization": "Bearer $token"});
+    try{
+      response = await http.get(url, headers: {"Accept": "application/json", "Authorization": "Bearer $token"});
+    }catch(e){
+      rethrow;
+    }
+
 
     var _text = <dynamic, dynamic>{};
 
@@ -22,7 +28,12 @@ class BuscaDesc {
       var url = Uri.parse(
         'https://cosmos.bluesoft.com.br/produtos/${ean.text.toString()}',
       );
-      response = await http.get(url);
+      try{
+        response = await http.get(url);
+      }catch(e){
+        rethrow;
+      }
+
       // cria a lista com a respostas separada por "<"
       var list = response.body.split('<');
       //retorn com a descricao

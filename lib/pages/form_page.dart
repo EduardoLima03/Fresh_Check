@@ -1,5 +1,6 @@
 import 'package:coleta_de_validade_lj04/api/busca_desc/busca_desc.dart';
 import 'package:coleta_de_validade_lj04/pages/about_page.dart';
+import 'package:coleta_de_validade_lj04/pages/login_page.dart';
 import 'package:coleta_de_validade_lj04/services/login_service.dart';
 import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,12 @@ class _FormPageState extends State<FormPage> {
     var text;
     if (_scanBarcode != 'Unknown') {
       eanControl.text = _scanBarcode;
-      text = await BuscaDesc().getDesc(eanControl, context, _token);
+      try{
+        text = await BuscaDesc().getDesc(eanControl, context, _token);
+      }catch(e){
+        SnackbarCustom().show(context, "ERRO: ${e.runtimeType}", Colors.red);
+      }
+
       print(text['code']);
       setState(() {
         descControl.text = text['descricao'].toString();
@@ -73,7 +79,11 @@ class _FormPageState extends State<FormPage> {
         isSave = false;
       });
     } else {
-      text = await BuscaDesc().getDesc(eanControl, context, _token);
+      try{
+        text = await BuscaDesc().getDesc(eanControl, context, _token);
+      }catch(e){
+        SnackbarCustom().show(context, "ERRO: ${e.runtimeType}", Colors.red);
+      }
       setState(() {
         descControl.text = text.toString();
         codControl.text = text['code'].toString();
@@ -89,7 +99,7 @@ class _FormPageState extends State<FormPage> {
 
   @override
   initState() {
-    getToken().then((value){
+    getToken().then((value) {
       _token = value.toString();
     });
     _service.readToken();
@@ -114,11 +124,24 @@ class _FormPageState extends State<FormPage> {
         title: const Text('Cadastro Loja 04'),
         actions: [
           IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const AboutPage()));
-              },
-              icon: const Icon(Icons.help))
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const AboutPage()));
+            },
+            icon: const Icon(Icons.help),
+          ),
+          IconButton(onPressed: (){
+            try{
+              _service.logout().then((value) {
+                if(value){
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const LoginPage()));
+                }
+              });
+            }catch (e){
+              SnackbarCustom().show(context, 'ERRO: ${e.runtimeType.toString()}', Colors.red);
+            }
+
+          }, icon: const Icon(Icons.logout_outlined)),
         ],
       ),
       body: Padding(
@@ -341,7 +364,7 @@ class _FormPageState extends State<FormPage> {
     });
   }
 
-  Future<String> getToken()async{
+  Future<String> getToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getString('token').toString();
   }
