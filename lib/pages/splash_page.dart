@@ -11,13 +11,9 @@ class SplashPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset('assets/icons/icon.png'),
+              Image.asset('assets/icons/04-2.png'),
               const SizedBox(
                 height: 20.0,
-              ),
-              const Text(
-                'Coletor de Validade',
-                style: TextStyle(color: Colors.green, fontSize: 24.0),
               ),
             ],
           ),

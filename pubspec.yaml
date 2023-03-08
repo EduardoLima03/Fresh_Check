@@ -39,6 +39,7 @@ dependencies:
   intl: ^0.17.0
   gsheets: ^0.4.2
   shared_preferences: ^2.0.18
+  flutter_svg: ^2.0.2
 
 dev_dependencies:
   flutter_test:
@@ -51,12 +52,13 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
 
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: ^0.12.0
 
 flutter_icons:
   android: "launcher_icon"
-  ios: false
-  image_path: "assets/icons/icon.png"
+  ios: true
+  image_path: "assets/icons/play_store_512.png"
+  min_sdk_android: 16
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -75,7 +77,8 @@ flutter:
   #   - images/a_dot_ham.
   assets:
     - assets/icons/icon.png
-    - assets/icons/loja4.png
+    - assets/icons/play_store_512.png
+    - assets/icons/04-2.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
