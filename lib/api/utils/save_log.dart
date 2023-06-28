@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 
 import '../../models/log_save_model.dart';
-import '../sheets/log_sheets_api.dart';
 
 class SaveLog{
   void log(String erro, String funcao) async {
@@ -12,7 +11,7 @@ class SaveLog{
       LogFields.funcao: funcao,
     };
 
-    await LogSheetsApi.insert([logSave]);
+    //await LogSheetsApi.insert([logSave]);
   }
 
 }
