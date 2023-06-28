@@ -9,7 +9,6 @@ void main() async {
   runApp(const SplashPage());
   WidgetsFlutterBinding.ensureInitialized();
   await UserSheetsApi.init();
-  await LogSheetsApi.init();
   runApp(const MyApp());
 }
 
