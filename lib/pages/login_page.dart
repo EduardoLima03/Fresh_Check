@@ -1,8 +1,7 @@
+import 'package:coleta_de_validade_lj04/controller/login_controller.dart';
 import 'package:coleta_de_validade_lj04/pages/form_page.dart';
-import 'package:coleta_de_validade_lj04/services/login_service.dart';
 import 'package:coleta_de_validade_lj04/widgets/utils/snackbar_custom.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,11 +11,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  LoginService loginService = LoginService();
+  final LoginController _controller = LoginController();
 
   @override
   void initState() {
-    verificarToken().then((value) {
+    _controller.verificarToken().then((value) {
       if (value) {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => FormPage()));
@@ -107,10 +106,10 @@ class _LoginPageState extends State<LoginPage> {
                             : () async {
                                 if (_formKey.currentState!.validate()) {
                                   try {
-                                    String? teste = await loginService.getLogin(
-                                        _emailTextControl.text.toString(),
-                                        _passwordTextControl.text.toString());
-                                    if (teste! != 'erro') {
+                                    String? teste = await _controller.login(
+                                        email: _emailTextControl.text.toString(),
+                                        password: _passwordTextControl.text.toString(),);
+                                    if (teste != 'erro') {
                                       // ignore: use_build_context_synchronously
                                       Navigator.pushReplacement(
                                           context,
@@ -178,12 +177,5 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  Future<bool> verificarToken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    if (preferences.getString('token') != null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  
 }

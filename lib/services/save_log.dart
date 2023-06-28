@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import '../../models/log_save_model.dart';
+import '../models/log_save_model.dart';
 
 class SaveLog{
   void log(String erro, String funcao) async {

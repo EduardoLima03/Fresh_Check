@@ -1,4 +1,5 @@
-import 'package:coleta_de_validade_lj04/api/busca_desc/busca_desc.dart';
+import 'package:coleta_de_validade_lj04/resources/save_user_resource.dart';
+import 'package:coleta_de_validade_lj04/services/busca_desc.dart';
 import 'package:coleta_de_validade_lj04/pages/about_page.dart';
 import 'package:coleta_de_validade_lj04/pages/login_page.dart';
 import 'package:coleta_de_validade_lj04/services/login_service.dart';
@@ -32,6 +33,7 @@ class _FormPageState extends State<FormPage> {
 
   SelectedDropdownButton _selectedDropdownButton = SelectedDropdownButton();
   final LoginService _service = LoginService();
+  final SaveUserResource _resource = SaveUserResource();
 
   /// barcode*/
   String _scanBarcode = 'Unknown';
@@ -101,7 +103,7 @@ class _FormPageState extends State<FormPage> {
     getToken().then((value) {
       _token = value.toString();
     });
-    _service.readToken();
+    _resource.getToken();
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
@@ -309,8 +311,7 @@ class _FormPageState extends State<FormPage> {
                                   UserFields.carimbo:
                                       DateFormat("dd/MM/yyyy HH:mm:ss")
                                           .format(DateTime.now()),
-                                  UserFields.auditor:
-                                      "${_service.name.value} - ${_service.function.value}",
+                                  //UserFields.auditor:"${_service.name.value} - ${_service.function.value}",
                                   UserFields.setor: _selectedDropdownButton
                                       .selectedSetor.value,
                                   UserFields.descricao: descControl.text,

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../../widgets/utils/snackbar_custom.dart';
-import '../utils/save_log.dart';
+import '../widgets/utils/snackbar_custom.dart';
+import 'save_log.dart';
 
 class BuscaDesc {
   Future<Map> getDesc(ean, BuildContext context, String token) async {
