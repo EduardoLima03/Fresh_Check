@@ -11,14 +11,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final LoginController _controller = LoginController();
+  late final LoginController _controller;
 
   @override
   void initState() {
     _controller.verificarToken().then((value) {
       if (value) {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => FormPage()));
+            context, MaterialPageRoute(builder: (context) => const FormPage()));
       }
     });
     super.initState();
@@ -26,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    _controller = LoginController(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -105,25 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                             ? null
                             : () async {
                                 if (_formKey.currentState!.validate()) {
-                                  try {
-                                    String? teste = await _controller.login(
-                                        email: _emailTextControl.text.toString(),
-                                        password: _passwordTextControl.text.toString(),);
-                                    if (teste != 'erro') {
-                                      // ignore: use_build_context_synchronously
-                                      Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const FormPage()));
-                                    } else {
-                                      // ignore: use_build_context_synchronously
-                                      SnackbarCustom().show(context,
-                                          "Usuario invalido", Colors.red);
-                                    }
-                                  } catch (e) {
-                                    SnackbarCustom().show(context, "ERRO: ${e.runtimeType}", Colors.red);
-                                  }
+                                  _controller.login(email: _emailTextControl.text, password: _passwordTextControl.text);
                                 }
                               },
                         // ignore: sort_child_properties_last
